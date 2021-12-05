@@ -6,19 +6,19 @@ import datetime
 
 class SalesList:
     ID_COUNT = 4
-    SALES = [{'saleId': 1, 'seller': {'sellerId': 1, 'username': 'Andre', 'password': 'password'}, 'customerName': 'Renanf',
-              'date': datetime.datetime.today(), 'itemName': 'Ball', 'saleValue': 100},
-             {'saleId': 2, 'seller': {'sellerId': 1, 'username': 'Andre', 'password': 'password'}, 'customerName': 'Renanf',
-              'date': datetime.datetime.today(), 'itemName': 'Ball', 'saleValue': 100},
-             {'saleId': 3, 'seller': {'sellerId': 4, 'username': 'Monica', 'password': 'password'}, 'customerName': 'Renanf',
-              'date': datetime.datetime.today(), 'itemName': 'Ball', 'saleValue': 100}]
+    SALES = [{'saleId': 1, 'seller': {'userId': 1, 'username': 'Andre', 'password': 'password', 'userType': 'seller'},
+              'customerName': 'Renanf', 'date': datetime.datetime.today(), 'itemName': 'Ball', 'saleValue': 100},
+             {'saleId': 2, 'seller': {'userId': 1, 'username': 'Andre', 'password': 'password', 'userType': 'seller'},
+              'customerName': 'Renanf', 'date': datetime.datetime.today(), 'itemName': 'Ball', 'saleValue': 100},
+             {'saleId': 3, 'seller': {'userId': 4, 'username': 'Monica', 'password': 'password', 'userType': 'seller'},
+              'customerName': 'Renanf', 'date': datetime.datetime.today(), 'itemName': 'Ball', 'saleValue': 100}]
 
     # FUNCTIONS
     def get_sales(self):
         return self.SALES.copy()
 
-    def get_sales_by_seller_id(self, seller_id):
-        return [sale for sale in self.SALES if sale['seller']['sellerId'] == seller_id]
+    def get_sales_by_user_id(self, seller_id):
+        return [sale for sale in self.SALES if sale['seller']['userId'] == seller_id]
 
     def get_sale_by_id(self, sale_id):
         for i in range(len(self.SALES)):
