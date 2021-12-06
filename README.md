@@ -3,26 +3,31 @@
 Written in Python 3.8
 
 To run: 
+
     py SalesManager.py
 
 Profiles:
-Admins can delete and edit any sale.
-Sellers can delete and edit just their own sales.
 
-For Login:
-Choose one of the following usernames:
+    Admins can delete and edit any sale.
+    Sellers can delete and edit just their own sales.
 
-    Admin:
-        Manager
+For Login, choose one of the following usernames:
 
-    Sellers:
-        Andre   
-        Julia   
-        Monica  
-        Robson  
-        Ricardo 
+   Admin:
+        
+    Manager
 
-    All users have the same password: password.
+   Sellers:
+   
+    Andre   
+    Julia   
+    Monica  
+    Robson  
+    Ricardo 
+
+All users have the same password: 
+    
+    password
 
 
 Enjoy :)
