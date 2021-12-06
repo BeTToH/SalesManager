@@ -34,10 +34,11 @@ class SalesList:
         self.SALES.append(new_sale)
         self.ID_COUNT += 1
 
-    def edit_sale_date(self, sale_id, new_date):
+    def edit_sale(self, sale_id, seller, customer_name, date, item_name, sale_value):
         for i in range(len(self.SALES)):
             if self.SALES[i]['saleId'] == sale_id:
-                self.SALES[i]['date'] = new_date
+                self.SALES[i] = {'saleId': sale_id, 'seller': seller, 'customerName': customer_name,
+                                 'date': date, 'itemName': item_name, 'saleValue': sale_value}
                 break
 
     def delete_sale(self, sale_id):

@@ -7,6 +7,15 @@ from users_list import UsersList
 # ------------------------------------------------------------------
 # Aux Functions
 
+def get_not_empty_string(input_message, field_name):
+    while True:
+        str_input = input(input_message)
+        if str_input == "" or str_input.isspace():
+            print(f"Insert a valid {field_name}!")
+        else:
+            return str_input
+
+
 def get_int_input(input_message):
     while True:
         try:
@@ -16,10 +25,13 @@ def get_int_input(input_message):
             print("\n--- Please inform a number! ---\n")
 
 
-def get_date_input(input_message, date_format):
+def get_date_input(input_message, date_format, allow_empty=False):
     while True:
+        date_str = input(input_message)
+        if allow_empty and (date_str == "" or date_str.isspace()):
+            return date_str
         try:
-            date = datetime.datetime.strptime(input(input_message), date_format)
+            date = datetime.datetime.strptime(date_str, date_format)
             break
         except ValueError:
             print("\n--- Insert a valid date! Correct format: mm-dd-yyyy, e.g. 01-01-2000. ---\n")
@@ -45,14 +57,18 @@ def print_sellers(sellers):
         count += 1
 
 
+def print_sale(sale):
+    print(f"SALE {sale['saleId']}")
+    print(f"Seller Name: {sale['seller']['username']}")
+    print(f"Customer Name: {sale['customerName']}")
+    print(f"Date Of Sale: {sale['date'].strftime('%m-%m-%Y')}")
+    print(f"Sale Item Name: {sale['itemName']}")
+    print(f"Sale Value: {sale['saleValue']:.2f}\n")
+
+
 def list_sales(sales):
     for sale in sales:
-        print(f"SALE {sale['saleId']}")
-        print(f"Seller Name: {sale['seller']['username']}")
-        print(f"Customer Name: {sale['customerName']}")
-        print(f"Date Of Sale: {sale['date'].strftime('%m-%m-%Y')}")
-        print(f"Sale Item Name: {sale['itemName']}")
-        print(f"Sale Value: {sale['saleValue']:.2f}\n")
+        print_sale(sale)
 
 
 def get_sellers_rank(sales, sellers):
@@ -95,7 +111,7 @@ def insert_new_sale(logged_user, sales_list, sellers):
             try:
                 print("Choose a seller:")
                 print_sellers(sellers)
-                seller_index = int(input("Inform the option number: ")) - 1
+                seller_index = get_int_input("Inform the option number: ") - 1
                 seller = sellers[seller_index]
                 break
             except IndexError:
@@ -103,11 +119,11 @@ def insert_new_sale(logged_user, sales_list, sellers):
     else:
         seller = logged_user
 
-    customer_name = input("Customer Name: ")
+    customer_name = get_not_empty_string('Customer Name: ', 'customer name')
 
     date = get_date_input("Date (mm-dd-yyyy):", '%m-%d-%Y')
 
-    item_name = input("Item Name: ")
+    item_name = get_not_empty_string("Item Name: ", 'item name')
 
     while True:
         try:
@@ -117,10 +133,9 @@ def insert_new_sale(logged_user, sales_list, sellers):
             print("\n--- Insert a valid value! ---\n")
 
     sales_list.insert_new_sale(seller, customer_name, date, item_name, value)
-    list_sales_by_seller_rank(sales_list, sellers)
 
 
-def edit_sale_date(logged_user, sales_list):
+def edit_sale_date(logged_user, sales_list, sellers):
     logged_user_sales = []
     if logged_user['userType'] == 'seller':
         logged_user_sales = sales_list.get_sales_by_user_id(logged_user['userId'])
@@ -140,8 +155,9 @@ def edit_sale_date(logged_user, sales_list):
 
         list_sales(logged_user_sales)
 
+        selected_sale = {}
         while True:
-            sale_id = int(input("Insert the number of the sale you want to edit: "))
+            sale_id = get_int_input("Insert the number of the sale you want to edit: ")
             if sale_id == -1:
                 print("\n--- Edit operation was canceled! ---\n")
                 break
@@ -153,10 +169,52 @@ def edit_sale_date(logged_user, sales_list):
                 print("\n--- Inform a valid sale! ---\n")
 
         if sale_id != -1:
-            new_date = get_date_input("New date (mm-dd-yyyy):", '%m-%d-%Y')
+            print("Selected Sale:")
+            print_sale(selected_sale)
+            print("-- To maintain the same data, keep the field empty! --")
+
+            if logged_user['userType'] == 'admin':
+                while True:
+                    try:
+                        print("Choose a seller:")
+                        print_sellers(sellers)
+                        seller_index = get_int_input("Inform the option number: ") - 1
+                        seller = sellers[seller_index]
+                        break
+                    except IndexError:
+                        print("\n--- Inform a valid option! ---\n")
+            else:
+                seller = logged_user
+
+            customer_name = input("Customer Name: ")
+            if customer_name == "" or customer_name.isspace():
+                customer_name = selected_sale['customerName']
+
+            date = get_date_input("New date (mm-dd-yyyy):", '%m-%d-%Y', True)
+            if type(date) == str:
+                if date == "" or date.isspace():
+                    date = selected_sale['date']
+
+            item_name = input("Item Name: ")
+            if item_name == "" or item_name.isspace():
+                item_name = selected_sale['itemName']
+
+            while True:
+                value_str = input("Sale Value: ")
+                if value_str == "" or value_str.isspace():
+                    value = selected_sale['saleValue']
+                    break
+                try:
+                    value = float(value_str)
+                    break
+                except ValueError:
+                    print("\n--- Insert a valid value! ---\n")
+
             confirmed = confirm_operation('edit')
             if confirmed:
-                sales_list.edit_sale_date(sale_id, new_date)
+                sales_list.edit_sale(sale_id, seller, customer_name, date, item_name, value)
+                print('\nSale Updated:')
+                print_sale(sales_list.get_sale_by_id(sale_id))
             else:
                 print("\n--- Edit operation was canceled! ---\n")
 
@@ -208,7 +266,7 @@ HOME_MENU = '''
 ------- MENU -------
 1 - List all sales
 2 - Insert a new sale
-3 - Edit a sale date
+3 - Edit a sale
 4 - Delete a sale
 5 - Log off
 '''
@@ -227,9 +285,10 @@ def home(logged_user, users_list: UsersList):
 
         elif opt == 2:
             insert_new_sale(logged_user, sales_list, sellers)
+            list_sales_by_seller_rank(sales_list, sellers)
 
         elif opt == 3:
-            edit_sale_date(logged_user, sales_list)
+            edit_sale_date(logged_user, sales_list, sellers)
 
         elif opt == 4:
             delete_sale(logged_user, sales_list)
