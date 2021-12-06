@@ -2,7 +2,8 @@
 
 Written in Python 3.8
 
-To run: py SalesManager.py
+To run: 
+    py SalesManager.py
 
 Profiles:
 Admins can delete and edit any sale.
