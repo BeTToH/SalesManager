@@ -28,6 +28,3 @@ For Login, choose one of the following usernames:
 All users have the same password: 
     
     password
-
-
-Enjoy :)
